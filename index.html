@@ -1,21 +1,370 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Test</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0b1120">
+<title>StudyOS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  :root { --bg: #0b1120; --card: #111c2e; --card-light: #1e293b; --text: #f8fafc; --muted: #94a3b8; --accent: #34d399; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
+  body { margin: 0; padding: 20px 16px 100px; background: var(--bg); color: var(--text); overflow-x: hidden; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  h1 { font-size: 28px; margin: 0; font-weight: 700; color: #e2e8f0; }
+  header p { margin: 4px 0 0; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  #btn-open-settings { background: none; border: none; font-size: 24px; cursor: pointer; }
+  .nav-tabs { display: flex; gap: 6px; margin-bottom: 24px; }
+  .nav-btn { flex: 1; padding: 12px 0; border-radius: 12px; background: var(--card); border: 1px solid #1e293b; color: var(--muted); font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s; cursor: pointer; }
+  .nav-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .nav-btn svg { width: 18px; height: 18px; fill: currentColor; }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  .card { background: var(--card); border: 1px solid #1e293b; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+  .section-title { font-size: 18px; font-weight: 700; margin: 0 0 12px 0; color: var(--text); }
+  .dash-title { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .time-big { font-size: 28px; font-weight: 700; margin: 0; }
+  .time-sub { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+  input[type="text"], input[type="number"], input[type="date"], select { background: var(--card-light); border: 1px solid #334155; color: var(--text); padding: 12px; border-radius: 10px; font-size: 14px; outline: none; width: 100%; margin-bottom: 8px; }
+  button { cursor: pointer; font-weight: 600; font-size: 14px; border-radius: 10px; border: none; padding: 12px; transition: 0.1s; }
+  button:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #000; width: 100%; }
+  .btn-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 8px 12px; }
+  .habit-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .habit-btn { flex: 1; padding: 14px; background: var(--card-light); border: 2px solid transparent; border-radius: 12px; color: var(--muted); font-size: 14px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .habit-btn.done { background: rgba(52, 211, 153, 0.1); border-color: var(--accent); color: var(--accent); }
+  .question-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .q-box { background: var(--card-light); padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .q-box label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .q-box input { margin: 0; padding: 8px; font-size: 16px; text-align: center; font-weight: bold; }
+  .task-item { background: var(--card-light); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .task-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #475569; flex-shrink: 0; cursor: pointer; }
+  .task-item.done .task-check { background: var(--accent); border-color: var(--accent); }
+  .task-item.done .task-title { text-decoration: line-through; color: var(--muted); }
+  .task-title { font-size: 14px; font-weight: 600; }
+  .task-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .exam-item { background: var(--card-light); padding: 14px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .exam-days { font-size: 18px; font-weight: 700; color: var(--accent); }
+  .stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--card-light); font-size: 15px; }
+  .stat-row:last-child { border: none; }
+  .stat-val { font-weight: 700; }
+  .settings-group { margin-bottom: 20px; }
+  .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card-light); border-radius: 10px; margin-bottom: 6px; font-size: 14px; }
+</style>
 </head>
-<body style="background: #0b1120; color: white; padding: 20px; font-family: sans-serif;">
-  <h1>StudyOS Test</h1>
-  <p id="test-text">Waiting for Javascript...</p>
-  
-  <button onclick="alert('The button works!')" style="padding: 20px; font-size: 20px; margin-top: 20px;">Click Me</button>
+<body>
 
-  <script>
-    // This runs as soon as the page opens
-    try {
-      document.getElementById("test-text").innerHTML = "JavaScript is working! Today is " + new Date().toDateString();
-    } catch (error) {
-      document.getElementById("test-text").innerHTML = "ERROR: " + error.message;
+<header>
+  <div><h1>StudyOS</h1><p id="header-date">Loading...</p></div>
+  <button type="button" id="btn-open-settings">⚙️</button>
+</header>
+
+<div class="nav-tabs" id="bottom-nav">
+  <button type="button" class="nav-btn active" data-target="view-today">Today</button>
+  <button type="button" class="nav-btn" data-target="view-syllabus">Syllabus</button>
+  <button type="button" class="nav-btn" data-target="view-planner">Planner</button>
+  <button type="button" class="nav-btn" data-target="view-stats">Stats</button>
+</div>
+
+<div id="view-today" class="view active">
+  <div class="card">
+    <div class="dash-title">Today's Study Time</div>
+    <div class="time-big" id="today-hours">0h 0m</div>
+    <div class="time-sub" id="today-goal-text">of 4h goal</div>
+  </div>
+  <div class="card">
+    <div class="dash-title">Daily Habits</div>
+    <div class="habit-row">
+      <div class="habit-btn" id="habit-wake">☀️ Woke up on time</div>
+      <div class="habit-btn" id="habit-sleep">🌙 Sleep on time</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="dash-title">Questions Solved Today</div>
+    <div class="question-grid" id="question-grid"></div>
+  </div>
+  <div class="card">
+    <div class="dash-title">Today's Tasks</div>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input type="text" id="task-title-today" placeholder="Task name...">
+      <input type="number" id="task-dur-today" placeholder="Min" style="width:70px;">
+    </div>
+    <select id="task-sub-today" style="margin-bottom:10px;"></select>
+    <button type="button" class="btn-primary" id="btn-add-task-today" style="margin-bottom:16px;">+ Add Task</button>
+    <div id="tasks-list-today"></div>
+  </div>
+</div>
+
+<div id="view-syllabus" class="view">
+  <h2 class="section-title">Syllabus Tracker</h2>
+  <div id="syllabus-list"></div>
+</div>
+
+<div id="view-planner" class="view">
+  <div class="card">
+    <h2 class="section-title">Upcoming Exams</h2>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input type="text" id="exam-name" placeholder="Exam name...">
+      <input type="date" id="exam-date" style="width:140px;">
+    </div>
+    <button type="button" class="btn-primary" id="btn-add-exam" style="margin-bottom:12px;">+ Add Exam</button>
+    <div id="exams-list"></div>
+  </div>
+  <div class="card">
+    <h2 class="section-title">Plan Future Tasks</h2>
+    <input type="text" id="task-title-future" placeholder="Task name...">
+    <div style="display:flex; gap:10px;">
+      <select id="task-sub-future" style="flex:1;"></select>
+      <input type="number" id="task-dur-future" placeholder="Min" style="width:70px;">
+    </div>
+    <input type="date" id="task-date-future">
+    <button type="button" class="btn-primary" id="btn-add-task-future" style="margin-bottom:16px;">+ Schedule Task</button>
+    <div id="future-tasks-list"></div>
+  </div>
+</div>
+
+<div id="view-stats" class="view">
+  <h2 class="section-title">Your Progress</h2>
+  <div class="card">
+    <div class="stat-row"><span>Yesterday's Study</span> <span class="stat-val" id="stat-yesterday">0h 0m</span></div>
+    <div class="stat-row"><span>Today's Study</span> <span class="stat-val" id="stat-today">0h 0m</span></div>
+    <div class="stat-row"><span>Tomorrow's Planned</span> <span class="stat-val" id="stat-tomorrow">0h 0m</span></div>
+    <div class="stat-row"><span>Total Questions Today</span> <span class="stat-val" id="stat-questions">0</span></div>
+  </div>
+</div>
+
+<div id="view-settings" class="view">
+  <h2 class="section-title">Settings</h2>
+  <div class="card">
+    <div class="settings-group">
+      <label>Daily Study Goal (Hours)</label>
+      <input type="number" id="input-goal" value="4">
+    </div>
+    <h3 style="font-size:16px;">Manage Subjects</h3>
+    <div style="display:flex; gap:10px; margin-bottom:16px;">
+      <input type="text" id="input-new-subject" placeholder="New subject...">
+      <button type="button" class="btn-primary" id="btn-add-subject" style="width:auto;">Add</button>
+    </div>
+    <div id="settings-subjects-list"></div>
+  </div>
+  <button type="button" id="btn-save-settings" class="btn-primary" style="margin-bottom:40px;">Save & Close</button>
+</div>
+
+<script>
+  var DEFAULT_DATA = {
+    config: { dailyGoalHours: 4 },
+    syllabus: { "Maths": ["Real Numbers", "Polynomials"], "Science": ["Chemical Reactions", "Acids"], "SST": ["Resources"] },
+    progress: {}, tasks: [], logs: {}, questions: {}, habits: {}, exams: []
+  };
+
+  var db;
+  try {
+    var saved = localStorage.getItem("studyos_final_v1");
+    db = saved ? JSON.parse(saved) : null;
+  } catch(e) { db = null; }
+
+  if (!db || !db.config) db = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  if (!db.syllabus) db.syllabus = DEFAULT_DATA.syllabus;
+  if (!db.progress) db.progress = {};
+  if (!db.tasks) db.tasks = [];
+  if (!db.logs) db.logs = {};
+  if (!db.questions) db.questions = {};
+  if (!db.habits) db.habits = {};
+  if (!db.exams) db.exams = [];
+
+  function save() {
+    try { localStorage.setItem("studyos_final_v1", JSON.stringify(db)); } catch(e) {}
+  }
+
+  function getTodayStr() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
+  }
+  function getTomorrowStr() {
+    var d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
+  }
+  function getYesterdayStr() {
+    var d = new Date();
+    d.setDate(d.getDate() - 1);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') + "-" + String(d.getDate()).padStart(2, '0');
+  }
+
+  window.onload = function() {
+    var navBtns = document.querySelectorAll('.nav-btn');
+    var views = document.querySelectorAll('.view');
+    
+    for (var i = 0; i < navBtns.length; i++) {
+      navBtns[i].addEventListener('click', function() {
+        for (var j = 0; j < navBtns.length; j++) navBtns[j].classList.remove('active');
+        for (var k = 0; k < views.length; k++) views[k].classList.remove('active');
+        this.classList.add('active');
+        var targetId = this.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+      });
     }
-  </script>
-</body>
-</html>
+
+    function renderAll() {
+      var today = getTodayStr();
+      var yesterday = getYesterdayStr();
+      var tomorrow = getTomorrowStr();
+      
+      document.getElementById("header-date").textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+      var subOptions = "";
+      for (var sub in db.syllabus) subOptions += "<option value='" + sub + "'>" + sub + "</option>";
+      document.getElementById("task-sub-today").innerHTML = subOptions;
+      document.getElementById("task-sub-future").innerHTML = subOptions;
+
+      renderTodayTab(today);
+      renderSyllabusTab();
+      renderPlannerTab();
+      renderStatsTab(today, yesterday, tomorrow);
+    }
+
+    function renderTodayTab(today) {
+      var h = db.habits[today] || { wake: false, sleep: false };
+      document.getElementById("habit-wake").classList.toggle("done", h.wake);
+      document.getElementById("habit-sleep").classList.toggle("done", h.sleep);
+
+      var qGrid = document.getElementById("question-grid");
+      qGrid.innerHTML = "";
+      var todayQ = db.questions[today] || {};
+      for (var sub in db.syllabus) {
+        var val = todayQ[sub] || 0;
+        qGrid.innerHTML += "<div class='q-box'><label>" + sub + "</label><input type='number' class='q-input' data-sub='" + sub + "' value='" + val + "' min='0'></div>";
+      }
+      
+      var qInputs = document.querySelectorAll('.q-input');
+      for (var i = 0; i < qInputs.length; i++) {
+        qInputs[i].addEventListener('change', function() {
+          if (!db.questions[today]) db.questions[today] = {};
+          db.questions[today][this.getAttribute('data-sub')] = parseInt(this.value) || 0;
+          save(); renderStatsTab(today, getYesterdayStr(), getTomorrowStr());
+        });
+      }
+
+      var list = document.getElementById("tasks-list-today");
+      list.innerHTML = "";
+      var todayTasks = db.tasks.filter(function(t) { return t.date === today; });
+      
+      if (todayTasks.length === 0) list.innerHTML = "<p style='color:var(--muted); font-size:13px;'>No tasks for today. Add one above!</p>";
+      
+      for (var i = 0; i < todayTasks.length; i++) {
+        (function(task) {
+          var el = document.createElement("div");
+          el.className = "task-item" + (task.done ? " done" : "");
+          el.innerHTML = "<div class='task-check'></div><div style='flex:1;'><div class='task-title'>" + task.title + "</div><div class='task-meta'>" + task.subject + " · " + task.duration + " min</div></div><button type='button' class='btn-danger' onclick='deleteTask(\"" + task.id + "\")'>X</button>";
+          
+          el.querySelector(".task-check").addEventListener("click", function() {
+            task.done = !task.done; save(); renderAll();
+          });
+          list.appendChild(el);
+        })(todayTasks[i]);
+      }
+
+      var totalMins = 0;
+      for (var i = 0; i < todayTasks.length; i++) { if (todayTasks[i].done) totalMins += parseInt(todayTasks[i].duration); }
+      if (db.logs[today]) totalMins += db.logs[today];
+
+      document.getElementById("today-hours").textContent = Math.floor(totalMins / 60) + "h " + (totalMins % 60) + "m";
+      document.getElementById("today-goal-text").textContent = "of " + db.config.dailyGoalHours + "h goal";
+    }
+
+    document.getElementById("habit-wake").addEventListener("click", function() {
+      var today = getTodayStr();
+      if (!db.habits[today]) db.habits[today] = { wake: false, sleep: false };
+      db.habits[today].wake = !db.habits[today].wake;
+      save(); renderTodayTab(today);
+    });
+
+    document.getElementById("habit-sleep").addEventListener("click", function() {
+      var today = getTodayStr();
+      if (!db.habits[today]) db.habits[today] = { wake: false, sleep: false };
+      db.habits[today].sleep = !db.habits[today].sleep;
+      save(); renderTodayTab(today);
+    });
+
+    document.getElementById("btn-add-task-today").addEventListener("click", function() {
+      var title = document.getElementById("task-title-today").value.trim();
+      var dur = document.getElementById("task-dur-today").value;
+      var sub = document.getElementById("task-sub-today").value;
+      if (title && dur) {
+        db.tasks.push({ id: Date.now().toString(), title: title, subject: sub, duration: dur, date: getTodayStr(), done: false });
+        document.getElementById("task-title-today").value = "";
+        save(); renderAll();
+      }
+    });
+
+    function renderSyllabusTab() {
+      var container = document.getElementById("syllabus-list");
+      container.innerHTML = "";
+      for (var sub in db.syllabus) {
+        if (db.syllabus[sub].length === 0) continue;
+        var completed = 0;
+        for (var i = 0; i < db.syllabus[sub].length; i++) {
+          if (db.progress[sub + "::" + db.syllabus[sub][i]] === "completed") completed++;
+        }
+        
+        var card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = "<div style='display:flex; justify-content:space-between; margin-bottom:12px;'><div style='font-weight:700; color:var(--accent);'>" + sub + "</div><div style='font-size:13px; color:var(--muted);'>" + completed + "/" + db.syllabus[sub].length + " completed</div></div>";
+        
+        for (var j = 0; j < db.syllabus[sub].length; j++) {
+          var ch = db.syllabus[sub][j];
+          var key = sub + "::" + ch;
+          var status = db.progress[key] || "not_started";
+          card.innerHTML += "<div style='margin-bottom:12px;'><div style='font-size:14px; margin-bottom:6px;'>" + ch + "</div><select class='syl-select' data-key='" + key + "' style='margin:0;'><option value='not_started' " + (status === 'not_started' ? 'selected' : '') + ">Not started</option><option value='in_progress' " + (status === 'in_progress' ? 'selected' : '') + ">In progress</option><option value='completed' " + (status === 'completed' ? 'selected' : '') + ">Completed</option></select></div>";
+        }
+        container.appendChild(card);
+      }
+      
+      var selects = document.querySelectorAll('.syl-select');
+      for (var i = 0; i < selects.length; i++) {
+        selects[i].addEventListener('change', function() {
+          db.progress[this.getAttribute('data-key')] = this.value;
+          save(); renderSyllabusTab();
+        });
+      }
+    }
+
+    function renderPlannerTab() {
+      var examList = document.getElementById("exams-list");
+      examList.innerHTML = "";
+      db.exams.sort(function(a,b) { return new Date(a.date) - new Date(b.date); });
+      for (var i = 0; i < db.exams.length; i++) {
+        var exam = db.exams[i];
+        var daysLeft = Math.ceil((new Date(exam.date) - new Date()) / (1000 * 60 * 60 * 24));
+        examList.innerHTML += "<div class='exam-item'><div><div style='font-weight:600; font-size:14px;'>" + exam.name + "</div><div style='font-size:12px; color:var(--muted);'>" + exam.date + "</div></div><div class='exam-days'>" + (daysLeft < 0 ? 'Done' : daysLeft + ' days') + "</div><button type='button' class='btn-danger' onclick='deleteExam(\"" + exam.id + "\")'>X</button></div>";
+      }
+
+      var futList = document.getElementById("future-tasks-list");
+      futList.innerHTML = "";
+      var today = getTodayStr();
+      var futureTasks = db.tasks.filter(function(t) { return t.date > today; }).sort(function(a,b) { return new Date(a.date) - new Date(b.date); });
+      
+      if (futureTasks.length === 0) futList.innerHTML = "<p style='color:var(--muted); font-size:13px;'>No upcoming tasks planned.</p>";
+      
+      for (var i = 0; i < futureTasks.length; i++) {
+        var task = futureTasks[i];
+        futList.innerHTML += "<div class='task-item'><div style='flex:1;'><div class='task-title'>" + task.title + "</div><div class='task-meta'>" + task.date + " · " + task.subject + " · " + task.duration + " min</div></div><button type='button' class='btn-danger' onclick='deleteTask(\"" + task.id + "\")'>X</button></div>";
+      }
+    }
+
+    window.deleteExam = function(id) { db.exams = db.exams.filter(function(e) { return e.id !== id; }); save(); renderAll(); };
+    window.deleteTask = function(id) { db.tasks = db.tasks.filter(function(t) { return t.id !== id; }); save(); renderAll(); };
+
+    document.getElementById("btn-add-exam").addEventListener("click", function() {
+      var name = document.getElementById("exam-name").value.trim();
+      var date = document.getElementById("exam-date").value;
+      if (name && date) {
+        db.exams.push({ id: Date.now().toString(), name: name, date: date });
+        document.getElementById("exam-name").value = "";
+        save(); renderAll();
+      }
+    });
+
+    document.getElementById("btn-add-task-future").addEventListener("click", function() {
+      
