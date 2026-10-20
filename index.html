@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#121212">
+<meta name="mobile-web-app-capable" content="yes">
+<title>StudyOS</title>
+<style>
+  :root{
+    --bg:#121212; --card:#1c1c1e; --card2:#2a2a2d;
+    --text:#eaeaea; --muted:#9b9b9f;
+    --accent:#bb86fc; --green:#03dac6; --red:#cf6679;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;padding:18px 14px 40px;background:var(--bg);color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  header{text-align:center;margin-bottom:18px;}
+  h1{
+    font-size:30px;margin:0;letter-spacing:-.5px;
+    background:linear-gradient(135deg,var(--accent),var(--green));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  header p{margin:4px 0 0;font-size:12px;color:var(--muted);}
+  .card{background:var(--card);border-radius:18px;padding:18px;
+    margin-bottom:16px;box-shadow:0 6px 18px rgba(0,0,0,.35);}
+  h2{font-size:15px;margin:0 0 12px;color:var(--accent);font-weight:600;}
+
+  /* timer */
+  #time{font-size:64px;font-weight:700;text-align:center;
+    font-variant-numeric:tabular-nums;padding:6px 0;}
+  #time.running{color:var(--green);}
+  #time.done{color:var(--red);}
+  .row{display:flex;gap:10px;}
+  button{flex:1;border:0;border-radius:14px;padding:14px 10px;font-size:15px;
+    font-weight:600;color:#fff;background:var(--card2);font-family:inherit;}
+  button:active{transform:scale(.97);}
+  button.primary{background:#6c47ff;}
+  button:disabled{opacity:.35;}
+  #status{text-align:center;font-size:12px;color:var(--muted);margin:12px 0 0;}
+
+  /* syllabus */
+  #overall{font-size:12px;color:var(--muted);margin:0 0 14px;}
+  .subject{margin-bottom:18px;}
+  .subject h3{display:flex;justify-content:space-between;align-items:center;
+    margin:0 0 6px;padding-bottom:6px;border-bottom:1px solid var(--card2);}
+  .subject h3 .name{font-size:14px;color:var(--green);font-weight:600;}
+  .subject h3 .count{font-size:12px;color:var(--muted);font-weight:500;}
+  label.ch{display:flex;gap:10px;align-items:flex-start;padding:9px 2px;
+    font-size:14px;line-height:1.35;}
+  label.ch input{width:20px;height:20px;margin:0;flex:0 0 auto;
+    accent-color:var(--accent);}
+  label.ch.done span{text-decoration:line-through;color:var(--muted);}
+
+  footer{text-align:center;font-size:11px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>StudyOS</h1>
+  <p>CGBSE Class 10 · Focus & Syllabus</p>
+</header>
+
+<section class="card">
+  <h2>Focus Timer</h2>
+  <div id="time">25:00</div>
+  <div class="row">
+    <button id="start" class="primary">Start</button>
+    <button id="pause" disabled>Pause</button>
+    <button id="reset">Reset</button>
+  </div>
+  <p id="status">25 minute focus session</p>
+</section>
+
+<section class="card">
+  <h2>CGBSE Class 10 Syllabus</h2>
+  <p id="overall">Overall progress: 0 of 0 chapters</p>
+  <div id="syllabus"></div>
+</section>
+
+<footer>StudyOS · your ticks are saved automatically</footer>
+
+<script>
+/* ============================================================
+   ✏️  EDIT YOUR CHAPTERS HERE
+   Add / remove / rename subjects and chapters freely.
+   Your ticks are saved separately, so editing this list
+   never wipes your progress for chapters that still exist.
+   ============================================================ */
+const SYLLABUS = {
+  "Mathematics": [
+    "Polynomials","Linear Equations in Two Variables",
+    "Quadratic Equations in One Variable","Arithmetic Progression",
+    "Ratio and Proportion","Coordinate Geometry","Graph",
+    "Banking and Taxation","Trigonometric Equations and Identities",
+    "Height & Distance","Similarity in Geometrical Shapes",
+    "Circles and Tangents","Geometrical Constructions",
+    "Proof of Mathematical Statements",
+    "Surface Area and Volume of Solids","Data Analytics"
+  ],
+  "Science": [
+    "Chemical Reactions and Equations","Acids, Bases and Salts",
+    "Metals and Non-metals","Carbon Compounds",
+    "Periodic Classification of Elements","Life Processes",
+    "Control and Coordination","Reproduction","Heredity and Evolution",
+    "Light","Human Eye and Optical Instruments","Electricity",
+    "Magnetic Effects of Electric Current","Sources of Energy",
+    "Our Environment","Sustainable Management of Natural Resources"
+  ],
+  "Social Science": [
+    "Nationalism and Related Historical Developments",
+    "Indian National Movement","Industrialisation",
+    "Globalisation and Related Developments",
+    "Resources and Their Utilisation","Agriculture",
+    "Manufacturing Industries","Transport and Communication",
+    "Maps and Geographical Resources","Power Sharing","Federalism",
+    "Democracy","Political Parties",
+    "Outcomes and Challenges of Democracy","Development",
+    "Sectors of the Economy","Money and Credit","Globalisation",
+    "Consumer-related Topics"
+  ],
+  "English": [
+    "Patriotism","How the Little Kite Learned to Fly?",
+    "A Great Moment for All Those Children","The Never-Never Nest",
+    "Excuses, Excuses and Excuses","Uncle Podger Hangs a Picture",
+    "The Girl Who Asked Why","Including All My Friends",
+    "An Open Letter to the Teacher from a Child with Autism",
+    "Swami is Expelled from School"
+  ],
+  "Hindi": [
+    "Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"
+  ],
+  "Sanskrit": [
+    "Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"
+  ]
+};
+/* ============================================================ */
+
+/* ---------- saving (localStorage) ---------- */
+const KEY = "studyos_progress_v1";
+let done = {};
+try { done = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ done = {}; }
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e){}
+}
+
+/* ---------- build the syllabus list ---------- */
+const listEl = document.getElementById("syllabus");
+const overallEl = document.getElementById("overall");
+let total = 0, totalDone = 0;
+
+for (const subject in SYLLABUS){
+  const sec = document.createElement("div");
+  sec.className = "subject";
+
+  const h = document.createElement("h3");
+  const nameSpan = document.createElement("span");
+  nameSpan.className = "name";
+  nameSpan.textContent = subject;
+  const countSpan = document.createElement("span");
+  countSpan.className = "count";
+  h.append(nameSpan, countSpan);
+
+  let sTotal = 0, sDone = 0;
+
+  SYLLABUS[subject].forEach(chapter => {
+    const key = subject + "::" + chapter;
+
+    const label = document.createElement("label");
+    label.className = "ch";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.checked = !!done[key];
+    if (cb.checked) label.classList.add("done");
+
+    const text = document.createElement("span");
+    text.textContent = chapter;
+
+    cb.addEventListener("change", () => {
+      if (cb.checked) done[key] = true; else delete done[key];
+      label.classList.toggle("done", cb.checked);
+
+      sDone += cb.checked ? 1 : -1;
+      totalDone += cb.checked ? 1 : -1;
+      countSpan.textContent = sDone + "/" + sTotal;
+      overallEl.textContent = "Overall progress: " + totalDone + " of " + total + " chapters";
+      save();
+    });
+
+    label.append(cb, text);
+    sec.append(label);
+
+    sTotal++; total++;
+    if (cb.checked){ sDone++; totalDone++; }
+  });
+
+  countSpan.textContent = sDone + "/" + sTotal;
+  sec.prepend(h);
+  listEl.append(sec);
+}
+overallEl.textContent = "Overall progress: " + totalDone + " of " + total + " chapters";
+
+/* ---------- focus timer ---------- */
+const timeEl   = document.getElementById("time");
+const startBtn = document.getElementById("start");
+const pauseBtn = document.getElementById("pause");
+const resetBtn = document.getElementById("reset");
+const statusEl = document.getElementById("status");
+
+const MINUTES = 25;
+let remaining = MINUTES * 60;
+let endAt = 0;
+let ticker = null;
+let running = false;
+
+function fmt(s){
+  return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+}
+function paint(){
+  timeEl.textContent = fmt(Math.max(0, remaining));
+  timeEl.classList.toggle("running", running && remaining > 0);
+  timeEl.classList.toggle("done", remaining <= 0);
+  if (remaining <= 0)      statusEl.textContent = "Session complete — take a break 🎉";
+  else if (running)        statusEl.textContent = "Focus mode — keep the phone away 🙂";
+  else                     statusEl.textContent = MINUTES + " minute focus session";
+}
+function start(){
+  if (running || remaining <= 0) return;
+  running = true;
+  endAt = Date.now() + remaining * 1000;
+  startBtn.disabled = true;
+  pauseBtn.disabled = false;
+  ticker = setInterval(() => {
+    remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+    paint();
+    if (remaining <= 0) finish();
+  }, 250);
+  paint();
+}
+function pause(){
+  if (!running) return;
+  clearInterval(ticker); ticker = null; running = false;
+  remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  paint();
+}
+function finish(){
+  clearInterval(ticker); ticker = null; running = false;
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  beep();
+  paint();
+}
+function reset(){
+  clearInterval(ticker); ticker = null; running = false;
+  remaining = MINUTES * 60;
+  startBtn.disabled = false;
+  pauseBtn.disabled = true;
+  paint();
+}
+function beep(){
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = "sine"; o.frequency.value = 880;
+    g.gain.setValueAtTime(0.001, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+    o.start(); o.stop(ctx.currentTime + 1.3);
+  } catch(e){}
+}
+
+startBtn.addEventListener("click", start);
+pauseBtn.addEventListener("click", pause);
+resetBtn.addEventListener("click", reset);
+paint();
+</script>
+</body>
+  </html>
