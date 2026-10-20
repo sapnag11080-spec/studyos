@@ -2,285 +2,442 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#121212">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0b1120">
+<link rel="manifest" href="manifest.json">
 <title>StudyOS</title>
 <style>
-  :root{
-    --bg:#121212; --card:#1c1c1e; --card2:#2a2a2d;
-    --text:#eaeaea; --muted:#9b9b9f;
-    --accent:#bb86fc; --green:#03dac6; --red:#cf6679;
-  }
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  body{
-    margin:0;padding:18px 14px 40px;background:var(--bg);color:var(--text);
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  }
-  header{text-align:center;margin-bottom:18px;}
-  h1{
-    font-size:30px;margin:0;letter-spacing:-.5px;
-    background:linear-gradient(135deg,var(--accent),var(--green));
-    -webkit-background-clip:text;background-clip:text;color:transparent;
-  }
-  header p{margin:4px 0 0;font-size:12px;color:var(--muted);}
-  .card{background:var(--card);border-radius:18px;padding:18px;
-    margin-bottom:16px;box-shadow:0 6px 18px rgba(0,0,0,.35);}
-  h2{font-size:15px;margin:0 0 12px;color:var(--accent);font-weight:600;}
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-  /* timer */
-  #time{font-size:64px;font-weight:700;text-align:center;
-    font-variant-numeric:tabular-nums;padding:6px 0;}
-  #time.running{color:var(--green);}
-  #time.done{color:var(--red);}
-  .row{display:flex;gap:10px;}
-  button{flex:1;border:0;border-radius:14px;padding:14px 10px;font-size:15px;
-    font-weight:600;color:#fff;background:var(--card2);font-family:inherit;}
-  button:active{transform:scale(.97);}
-  button.primary{background:#6c47ff;}
-  button:disabled{opacity:.35;}
-  #status{text-align:center;font-size:12px;color:var(--muted);margin:12px 0 0;}
+  :root {
+    --bg: #0b1120; --card: #111c2e; --card-light: #1e293b;
+    --text: #f8fafc; --muted: #94a3b8; --accent: #34d399; --accent-dark: #065f46;
+  }
 
-  /* syllabus */
-  #overall{font-size:12px;color:var(--muted);margin:0 0 14px;}
-  .subject{margin-bottom:18px;}
-  .subject h3{display:flex;justify-content:space-between;align-items:center;
-    margin:0 0 6px;padding-bottom:6px;border-bottom:1px solid var(--card2);}
-  .subject h3 .name{font-size:14px;color:var(--green);font-weight:600;}
-  .subject h3 .count{font-size:12px;color:var(--muted);font-weight:500;}
-  label.ch{display:flex;gap:10px;align-items:flex-start;padding:9px 2px;
-    font-size:14px;line-height:1.35;}
-  label.ch input{width:20px;height:20px;margin:0;flex:0 0 auto;
-    accent-color:var(--accent);}
-  label.ch.done span{text-decoration:line-through;color:var(--muted);}
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
+  body { margin: 0; padding: 20px 16px 100px; background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-  footer{text-align:center;font-size:11px;color:var(--muted);}
+  /* Header & Nav */
+  header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  h1 { font-size: 28px; margin: 0; font-weight: 700; color: #e2e8f0; }
+  header p { margin: 4px 0 0; font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  #btn-open-settings { background: none; border: none; font-size: 24px; cursor: pointer; }
+  
+  .nav-tabs { display: flex; gap: 6px; margin-bottom: 24px; }
+  .nav-btn { flex: 1; padding: 12px 0; border-radius: 12px; background: var(--card); border: 1px solid #1e293b; color: var(--muted); font-size: 12px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.2s; cursor: pointer; }
+  .nav-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .nav-btn svg { width: 18px; height: 18px; fill: currentColor; }
+
+  /* Views */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards & UI */
+  .card { background: var(--card); border: 1px solid #1e293b; border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+  .section-title { font-size: 18px; font-weight: 700; margin: 0 0 12px 0; color: var(--text); }
+  .dash-title { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .time-big { font-size: 28px; font-weight: 700; margin: 0; }
+  .time-sub { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+
+  /* Forms & Inputs */
+  input[type="text"], input[type="number"], input[type="date"], select { background: var(--card-light); border: 1px solid #334155; color: var(--text); padding: 12px; border-radius: 10px; font-size: 14px; outline: none; width: 100%; margin-bottom: 8px; }
+  button { cursor: pointer; font-weight: 600; font-size: 14px; border-radius: 10px; border: none; padding: 12px; transition: 0.1s; }
+  button:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #000; width: 100%; }
+  .btn-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 8px 12px; }
+
+  /* Specific Sections */
+  .habit-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .habit-btn { flex: 1; padding: 14px; background: var(--card-light); border: 2px solid transparent; border-radius: 12px; color: var(--muted); font-size: 14px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .habit-btn.done { background: rgba(52, 211, 153, 0.1); border-color: var(--accent); color: var(--accent); }
+
+  .question-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .q-box { background: var(--card-light); padding: 12px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .q-box label { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .q-box input { margin: 0; padding: 8px; font-size: 16px; text-align: center; font-weight: bold; }
+
+  .task-item { background: var(--card-light); border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .task-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #475569; flex-shrink: 0; cursor: pointer; }
+  .task-item.done .task-check { background: var(--accent); border-color: var(--accent); }
+  .task-item.done .task-title { text-decoration: line-through; color: var(--muted); }
+  .task-title { font-size: 14px; font-weight: 600; }
+  .task-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  
+  .exam-item { background: var(--card-light); padding: 14px; border-radius: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .exam-days { font-size: 18px; font-weight: 700; color: var(--accent); }
+
+  .stat-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--card-light); font-size: 15px; }
+  .stat-row:last-child { border: none; }
+  .stat-val { font-weight: 700; }
+
+  /* Settings */
+  .settings-group { margin-bottom: 20px; }
+  .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: var(--card-light); border-radius: 10px; margin-bottom: 6px; font-size: 14px; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>StudyOS</h1>
-  <p>CGBSE Class 10 · Focus & Syllabus</p>
+  <div>
+    <h1>StudyOS</h1>
+    <p id="header-date">Loading date...</p>
+  </div>
+  <button id="btn-open-settings">⚙️</button>
 </header>
 
-<section class="card">
-  <h2>Focus Timer</h2>
-  <div id="time">25:00</div>
-  <div class="row">
-    <button id="start" class="primary">Start</button>
-    <button id="pause" disabled>Pause</button>
-    <button id="reset">Reset</button>
+<div class="nav-tabs" id="bottom-nav">
+  <button class="nav-btn active" data-target="view-today"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>Today</button>
+  <button class="nav-btn" data-target="view-syllabus"><svg viewBox="0 0 24 24"><path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3z"/></svg>Syllabus</button>
+  <button class="nav-btn" data-target="view-planner"><svg viewBox="0 0 24 24"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>Planner</button>
+  <button class="nav-btn" data-target="view-stats"><svg viewBox="0 0 24 24"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/></svg>Stats</button>
+</div>
+
+<!-- ================= TODAY VIEW ================= -->
+<div id="view-today" class="view active">
+  <div class="card">
+    <div class="dash-title">Today's Study Time</div>
+    <div class="time-big" id="today-hours">0h 0m</div>
+    <div class="time-sub" id="today-goal-text">of 4h goal</div>
   </div>
-  <p id="status">25 minute focus session</p>
-</section>
 
-<section class="card">
-  <h2>CGBSE Class 10 Syllabus</h2>
-  <p id="overall">Overall progress: 0 of 0 chapters</p>
-  <div id="syllabus"></div>
-</section>
+  <div class="card">
+    <div class="dash-title">Daily Habits</div>
+    <div class="habit-row">
+      <div class="habit-btn" id="habit-wake">☀️ Woke up on time</div>
+      <div class="habit-btn" id="habit-sleep">🌙 Sleep on time</div>
+    </div>
+  </div>
 
-<footer>StudyOS · your ticks are saved automatically</footer>
+  <div class="card">
+    <div class="dash-title">Questions Solved Today</div>
+    <div class="question-grid" id="question-grid">
+      <!-- Generated by JS -->
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="dash-title">Today's Tasks</div>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input type="text" id="task-title-today" placeholder="Task name...">
+      <input type="number" id="task-dur-today" placeholder="Min" style="width:70px;">
+    </div>
+    <select id="task-sub-today" style="margin-bottom:10px;"></select>
+    <button class="btn-primary" id="btn-add-task-today" style="margin-bottom:16px;">+ Add Task</button>
+    <div id="tasks-list-today"></div>
+  </div>
+</div>
+
+<!-- ================= SYLLABUS VIEW ================= -->
+<div id="view-syllabus" class="view">
+  <h2 class="section-title">Syllabus Tracker</h2>
+  <div id="syllabus-list"></div>
+</div>
+
+<!-- ================= PLANNER VIEW ================= -->
+<div id="view-planner" class="view">
+  <div class="card">
+    <h2 class="section-title">Upcoming Exams</h2>
+    <div style="display:flex; gap:10px; margin-bottom:10px;">
+      <input type="text" id="exam-name" placeholder="Exam name (e.g. Maths)">
+      <input type="date" id="exam-date" style="width:140px;">
+    </div>
+    <button class="btn-primary" id="btn-add-exam" style="margin-bottom:12px;">+ Add Exam</button>
+    <div id="exams-list"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">Plan Future Tasks</h2>
+    <p style="font-size:13px; color:var(--muted); margin-top:-8px; margin-bottom:12px;">Plan what you will study tomorrow or next week.</p>
+    
+    <input type="text" id="task-title-future" placeholder="Task name...">
+    <div style="display:flex; gap:10px;">
+      <select id="task-sub-future" style="flex:1;"></select>
+      <input type="number" id="task-dur-future" placeholder="Min" style="width:70px;">
+    </div>
+    <input type="date" id="task-date-future">
+    <button class="btn-primary" id="btn-add-task-future" style="margin-bottom:16px;">+ Schedule Task</button>
+    
+    <div id="future-tasks-list"></div>
+  </div>
+</div>
+
+<!-- ================= STATS VIEW ================= -->
+<div id="view-stats" class="view">
+  <h2 class="section-title">Your Progress</h2>
+  <div class="card">
+    <div class="stat-row"><span>Yesterday's Study</span> <span class="stat-val" id="stat-yesterday">0h 0m</span></div>
+    <div class="stat-row"><span>Today's Study</span> <span class="stat-val" id="stat-today">0h 0m</span></div>
+    <div class="stat-row"><span>Tomorrow's Planned</span> <span class="stat-val" id="stat-tomorrow">0h 0m</span></div>
+    <div class="stat-row"><span>Total Questions Today</span> <span class="stat-val" id="stat-questions">0</span></div>
+  </div>
+</div>
+
+<!-- ================= SETTINGS VIEW ================= -->
+<div id="view-settings" class="view">
+  <h2 class="section-title">Settings</h2>
+  <div class="card">
+    <div class="settings-group">
+      <label>Daily Study Goal (Hours)</label>
+      <input type="number" id="input-goal" value="4">
+    </div>
+    <h3 style="font-size:16px;">Manage Subjects</h3>
+    <div style="display:flex; gap:10px; margin-bottom:16px;">
+      <input type="text" id="input-new-subject" placeholder="New subject...">
+      <button class="btn-primary" id="btn-add-subject" style="width:auto;">Add</button>
+    </div>
+    <div id="settings-subjects-list"></div>
+  </div>
+  <button id="btn-save-settings" class="btn-primary" style="margin-bottom:40px;">Save & Close</button>
+</div>
 
 <script>
-/* ============================================================
-   ✏️  EDIT YOUR CHAPTERS HERE
-   Add / remove / rename subjects and chapters freely.
-   Your ticks are saved separately, so editing this list
-   never wipes your progress for chapters that still exist.
-   ============================================================ */
-const SYLLABUS = {
-  "Mathematics": [
-    "Polynomials","Linear Equations in Two Variables",
-    "Quadratic Equations in One Variable","Arithmetic Progression",
-    "Ratio and Proportion","Coordinate Geometry","Graph",
-    "Banking and Taxation","Trigonometric Equations and Identities",
-    "Height & Distance","Similarity in Geometrical Shapes",
-    "Circles and Tangents","Geometrical Constructions",
-    "Proof of Mathematical Statements",
-    "Surface Area and Volume of Solids","Data Analytics"
-  ],
-  "Science": [
-    "Chemical Reactions and Equations","Acids, Bases and Salts",
-    "Metals and Non-metals","Carbon Compounds",
-    "Periodic Classification of Elements","Life Processes",
-    "Control and Coordination","Reproduction","Heredity and Evolution",
-    "Light","Human Eye and Optical Instruments","Electricity",
-    "Magnetic Effects of Electric Current","Sources of Energy",
-    "Our Environment","Sustainable Management of Natural Resources"
-  ],
-  "Social Science": [
-    "Nationalism and Related Historical Developments",
-    "Indian National Movement","Industrialisation",
-    "Globalisation and Related Developments",
-    "Resources and Their Utilisation","Agriculture",
-    "Manufacturing Industries","Transport and Communication",
-    "Maps and Geographical Resources","Power Sharing","Federalism",
-    "Democracy","Political Parties",
-    "Outcomes and Challenges of Democracy","Development",
-    "Sectors of the Economy","Money and Credit","Globalisation",
-    "Consumer-related Topics"
-  ],
-  "English": [
-    "Patriotism","How the Little Kite Learned to Fly?",
-    "A Great Moment for All Those Children","The Never-Never Nest",
-    "Excuses, Excuses and Excuses","Uncle Podger Hangs a Picture",
-    "The Girl Who Asked Why","Including All My Friends",
-    "An Open Letter to the Teacher from a Child with Autism",
-    "Swami is Expelled from School"
-  ],
-  "Hindi": [
-    "Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"
-  ],
-  "Sanskrit": [
-    "Chapter 1","Chapter 2","Chapter 3","Chapter 4","Chapter 5"
-  ]
-};
-/* ============================================================ */
+// --- UTILS & DATA STORAGE ---
+const getTodayStr = () => new Date().toISOString().split('T')[0];
+const getTomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; };
+const getYesterdayStr = () => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().split('T')[0]; };
 
-/* ---------- saving (localStorage) ---------- */
-const KEY = "studyos_progress_v1";
-let done = {};
-try { done = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ done = {}; }
-function save(){
-  try { localStorage.setItem(KEY, JSON.stringify(done)); } catch(e){}
+const DEFAULT_DATA = {
+  config: { dailyGoalHours: 4 },
+  syllabus: { "Maths": ["Real Numbers", "Polynomials"], "Science": ["Chemical Reactions", "Acids"], "SST": ["Resources"] },
+  progress: {}, // "Maths::Real Numbers": "completed"
+  tasks: [], // { id, title, subject, duration, date, done }
+  logs: {}, // "2023-10-27": 120 (minutes)
+  questions: {}, // "2023-10-27": { "Maths": 10, "Science": 5 }
+  habits: {}, // "2023-10-27": { wake: true, sleep: false }
+  exams: [] // { id, name, date }
+};
+
+let db = JSON.parse(localStorage.getItem("studyos_full_db"));
+if (!db || !db.config) { db = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+
+function save() { localStorage.setItem("studyos_full_db", JSON.stringify(db)); }
+
+// --- NAVIGATION ---
+const navBtns = document.querySelectorAll('.nav-btn');
+const views = document.querySelectorAll('.view');
+navBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navBtns.forEach(b => b.classList.remove('active'));
+    views.forEach(v => v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+
+// --- MAIN RENDER LOGIC ---
+function renderAll() {
+  const today = getTodayStr();
+  const yesterday = getYesterdayStr();
+  const tomorrow = getTomorrowStr();
+
+  document.getElementById("header-date").textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  // 1. Populate Subject Dropdowns
+  const subOptions = Object.keys(db.syllabus).map(sub => `<option value="${sub}">${sub}</option>`).join('');
+  document.getElementById("task-sub-today").innerHTML = subOptions;
+  document.getElementById("task-sub-future").innerHTML = subOptions;
+
+  // 2. Render Today Tab
+  renderTodayTab(today);
+  
+  // 3. Render Syllabus Tab
+  renderSyllabusTab();
+
+  // 4. Render Planner Tab
+  renderPlannerTab();
+
+  // 5. Render Stats Tab
+  renderStatsTab(today, yesterday, tomorrow);
 }
 
-/* ---------- build the syllabus list ---------- */
-const listEl = document.getElementById("syllabus");
-const overallEl = document.getElementById("overall");
-let total = 0, totalDone = 0;
+// --- TODAY TAB ---
+function renderTodayTab(today) {
+  // Habits
+  const h = db.habits[today] || { wake: false, sleep: false };
+  document.getElementById("habit-wake").classList.toggle("done", h.wake);
+  document.getElementById("habit-sleep").classList.toggle("done", h.sleep);
 
-for (const subject in SYLLABUS){
-  const sec = document.createElement("div");
-  sec.className = "subject";
-
-  const h = document.createElement("h3");
-  const nameSpan = document.createElement("span");
-  nameSpan.className = "name";
-  nameSpan.textContent = subject;
-  const countSpan = document.createElement("span");
-  countSpan.className = "count";
-  h.append(nameSpan, countSpan);
-
-  let sTotal = 0, sDone = 0;
-
-  SYLLABUS[subject].forEach(chapter => {
-    const key = subject + "::" + chapter;
-
-    const label = document.createElement("label");
-    label.className = "ch";
-
-    const cb = document.createElement("input");
-    cb.type = "checkbox";
-    cb.checked = !!done[key];
-    if (cb.checked) label.classList.add("done");
-
-    const text = document.createElement("span");
-    text.textContent = chapter;
-
-    cb.addEventListener("change", () => {
-      if (cb.checked) done[key] = true; else delete done[key];
-      label.classList.toggle("done", cb.checked);
-
-      sDone += cb.checked ? 1 : -1;
-      totalDone += cb.checked ? 1 : -1;
-      countSpan.textContent = sDone + "/" + sTotal;
-      overallEl.textContent = "Overall progress: " + totalDone + " of " + total + " chapters";
+  // Questions Grid
+  const qGrid = document.getElementById("question-grid");
+  qGrid.innerHTML = "";
+  const todayQ = db.questions[today] || {};
+  for (const sub in db.syllabus) {
+    const val = todayQ[sub] || 0;
+    qGrid.innerHTML += `
+      <div class="q-box">
+        <label>${sub}</label>
+        <input type="number" class="q-input" data-sub="${sub}" value="${val}" min="0">
+      </div>
+    `;
+  }
+  
+  // Add event listeners for question inputs
+  document.querySelectorAll('.q-input').forEach(input => {
+    input.addEventListener('change', (e) => {
+      if (!db.questions[today]) db.questions[today] = {};
+      db.questions[today][e.target.dataset.sub] = parseInt(e.target.value) || 0;
       save();
+      renderStatsTab(today, getYesterdayStr(), getTomorrowStr());
     });
-
-    label.append(cb, text);
-    sec.append(label);
-
-    sTotal++; total++;
-    if (cb.checked){ sDone++; totalDone++; }
   });
 
-  countSpan.textContent = sDone + "/" + sTotal;
-  sec.prepend(h);
-  listEl.append(sec);
-}
-overallEl.textContent = "Overall progress: " + totalDone + " of " + total + " chapters";
+  // Tasks List (Today only)
+  const list = document.getElementById("tasks-list-today");
+  list.innerHTML = "";
+  const todayTasks = db.tasks.filter(t => t.date === today);
+  
+  if (todayTasks.length === 0) list.innerHTML = `<p style="color:var(--muted); font-size:13px;">No tasks for today. Add one above!</p>`;
+  
+  todayTasks.forEach(task => {
+    const el = document.createElement("div");
+    el.className = "task-item" + (task.done ? " done" : "");
+    el.innerHTML = `
+      <div class="task-check"></div>
+      <div style="flex:1;">
+        <div class="task-title">${task.title}</div>
+        <div class="task-meta">${task.subject} · ${task.duration} min</div>
+      </div>
+      <button class="btn-danger" onclick="deleteTask('${task.id}')">X</button>
+    `;
+    el.querySelector(".task-check").addEventListener("click", () => toggleTask(task.id));
+    list.appendChild(el);
+  });
 
-/* ---------- focus timer ---------- */
-const timeEl   = document.getElementById("time");
-const startBtn = document.getElementById("start");
-const pauseBtn = document.getElementById("pause");
-const resetBtn = document.getElementById("reset");
-const statusEl = document.getElementById("status");
+  // Calculate Today's Total Time
+  let totalMins = 0;
+  // Add completed task minutes
+  todayTasks.forEach(t => { if (t.done) totalMins += parseInt(t.duration); });
+  // Add manually logged time (if any, using a simple catch-all for the old study log feature)
+  if (db.logs[today]) totalMins += db.logs[today];
 
-const MINUTES = 25;
-let remaining = MINUTES * 60;
-let endAt = 0;
-let ticker = null;
-let running = false;
-
-function fmt(s){
-  return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
-}
-function paint(){
-  timeEl.textContent = fmt(Math.max(0, remaining));
-  timeEl.classList.toggle("running", running && remaining > 0);
-  timeEl.classList.toggle("done", remaining <= 0);
-  if (remaining <= 0)      statusEl.textContent = "Session complete — take a break 🎉";
-  else if (running)        statusEl.textContent = "Focus mode — keep the phone away 🙂";
-  else                     statusEl.textContent = MINUTES + " minute focus session";
-}
-function start(){
-  if (running || remaining <= 0) return;
-  running = true;
-  endAt = Date.now() + remaining * 1000;
-  startBtn.disabled = true;
-  pauseBtn.disabled = false;
-  ticker = setInterval(() => {
-    remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
-    paint();
-    if (remaining <= 0) finish();
-  }, 250);
-  paint();
-}
-function pause(){
-  if (!running) return;
-  clearInterval(ticker); ticker = null; running = false;
-  remaining = Math.max(0, Math.round((endAt - Date.now()) / 1000));
-  startBtn.disabled = false;
-  pauseBtn.disabled = true;
-  paint();
-}
-function finish(){
-  clearInterval(ticker); ticker = null; running = false;
-  startBtn.disabled = false;
-  pauseBtn.disabled = true;
-  beep();
-  paint();
-}
-function reset(){
-  clearInterval(ticker); ticker = null; running = false;
-  remaining = MINUTES * 60;
-  startBtn.disabled = false;
-  pauseBtn.disabled = true;
-  paint();
-}
-function beep(){
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type = "sine"; o.frequency.value = 880;
-    g.gain.setValueAtTime(0.001, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
-    o.start(); o.stop(ctx.currentTime + 1.3);
-  } catch(e){}
+  const goalMins = db.config.dailyGoalHours * 60;
+  const hrs = Math.floor(totalMins / 60), mins = totalMins % 60;
+  document.getElementById("today-hours").textContent = `${hrs}h ${mins}m`;
+  document.getElementById("today-goal-text").textContent = `of ${db.config.dailyGoalHours}h goal`;
 }
 
-startBtn.addEventListener("click", start);
-pauseBtn.addEventListener("click", pause);
-resetBtn.addEventListener("click", reset);
-paint();
-</script>
-</body>
-  </html>
+// Habit Buttons
+document.getElementById("habit-wake").addEventListener("click", () => {
+  const today = getTodayStr();
+  if (!db.habits[today]) db.habits[today] = { wake: false, sleep: false };
+  db.habits[today].wake = !db.habits[today].wake;
+  save(); renderTodayTab(today);
+});
+document.getElementById("habit-sleep").addEventListener("click", () => {
+  const today = getTodayStr();
+  if (!db.habits[today]) db.habits[today] = { wake: false, sleep: false };
+  db.habits[today].sleep = !db.habits[today].sleep;
+  save(); renderTodayTab(today);
+});
+
+// Add Task (Today)
+document.getElementById("btn-add-task-today").addEventListener("click", () => {
+  const title = document.getElementById("task-title-today").value.trim();
+  const dur = document.getElementById("task-dur-today").value;
+  const sub = document.getElementById("task-sub-today").value;
+  if (title && dur) {
+    db.tasks.push({ id: Date.now().toString(), title, subject: sub, duration: dur, date: getTodayStr(), done: false });
+    document.getElementById("task-title-today").value = "";
+    save(); renderAll();
+  }
+});
+
+// --- TASK UTILS ---
+window.toggleTask = (id) => {
+  const task = db.tasks.find(t => t.id === id);
+  if (task) { task.done = !task.done; save(); renderAll(); }
+};
+window.deleteTask = (id) => {
+  db.tasks = db.tasks.filter(t => t.id !== id);
+  save(); renderAll();
+};
+
+// --- SYLLABUS TAB ---
+function renderSyllabusTab() {
+  const container = document.getElementById("syllabus-list");
+  container.innerHTML = "";
+  
+  for (const sub in db.syllabus) {
+    if (db.syllabus[sub].length === 0) continue;
+    
+    let completed = db.syllabus[sub].filter(ch => db.progress[sub + "::" + ch] === "completed").length;
+    let card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
+        <div style="font-weight:700; color:var(--accent);">${sub}</div>
+        <div style="font-size:13px; color:var(--muted);">${completed}/${db.syllabus[sub].length} completed</div>
+      </div>
+    `;
+    
+    db.syllabus[sub].forEach(ch => {
+      const key = sub + "::" + ch;
+      const status = db.progress[key] || "not_started";
+      card.innerHTML += `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:14px; margin-bottom:6px;">${ch}</div>
+          <select class="syl-select" data-key="${key}" style="margin:0;">
+            <option value="not_started" ${status === 'not_started' ? 'selected' : ''}>Not started</option>
+            <option value="in_progress" ${status === 'in_progress' ? 'selected' : ''}>In progress</option>
+            <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </div>
+      `;
+    });
+    container.appendChild(card);
+  }
+  
+  document.querySelectorAll('.syl-select').forEach(sel => {
+    sel.addEventListener('change', (e) => {
+      db.progress[e.target.dataset.key] = e.target.value;
+      save(); renderSyllabusTab();
+    });
+  });
+}
+
+// --- PLANNER TAB ---
+function renderPlannerTab() {
+  // Exams
+  const examList = document.getElementById("exams-list");
+  examList.innerHTML = "";
+  db.exams.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(exam => {
+    const daysLeft = Math.ceil((new Date(exam.date) - new Date()) / (1000 * 60 * 60 * 24));
+    const isPast = daysLeft < 0;
+    examList.innerHTML += `
+      <div class="exam-item">
+        <div>
+          <div style="font-weight:600; font-size:14px;">${exam.name}</div>
+          <div style="font-size:12px; color:var(--muted);">${exam.date}</div>
+        </div>
+        <div class="exam-days" style="${isPast ? 'color:var(--muted)' : ''}">${isPast ? 'Done' : daysLeft + ' days'}</div>
+        <button class="btn-danger" onclick="deleteExam('${exam.id}')">X</button>
+      </div>
+    `;
+  });
+
+  // Future Tasks
+  const futList = document.getElementById("future-tasks-list");
+  futList.innerHTML = "";
+  const today = getTodayStr();
+  const futureTasks = db.tasks.filter(t => t.date > today).sort((a,b) => new Date(a.date) - new Date(b.date));
+  
+  if (futureTasks.length === 0) futList.innerHTML = `<p style="color:var(--muted); font-size:13px;">No upcoming tasks planned.</p>`;
+  
+  futureTasks.forEach(task => {
+    futList.innerHTML += `
+      <div class="task-item">
+        <div style="flex:1;">
+          <div class="task-title">${task.title}</div>
+          <div class="task-meta">${task.date} · ${task.subject} · ${task.duration} min</div>
+        </div>
+        <button class="btn-danger" onclick="deleteTask('${task.id}')">X</button>
+      </div>
+    `;
+  });
+}
+
+window.deleteExam = (id) => { db.exams = db.exams.filter(e => e.id !== id); save(); renderAll(); };
+
+document.getElementById("btn-add-exam").addEventListener("click", () => {
+  const
